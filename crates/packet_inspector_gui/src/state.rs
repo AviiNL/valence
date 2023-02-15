@@ -1,4 +1,3 @@
-use std::fmt::Write;
 use std::io::ErrorKind;
 use std::sync::Arc;
 
@@ -7,19 +6,16 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 use valence_protocol::{DecodePacket, EncodePacket, PacketDecoder, PacketEncoder};
 
-use crate::context::{Context, Packet};
+use crate::context::{Context, Packet, PacketBuilder};
 use crate::packet_widget::PacketDirection;
 
 pub struct State {
     pub direction: PacketDirection,
     pub context: Arc<Context>,
-    // cli: Arc<Cli>,
     pub enc: PacketEncoder,
     pub dec: PacketDecoder,
     pub read: OwnedReadHalf,
     pub write: OwnedWriteHalf,
-    pub buf: String,
-    pub raw: String,
 }
 
 impl State {
@@ -42,20 +38,11 @@ impl State {
 
         self.enc.append_packet(&pkt)?;
 
-        let bytes = self.enc.take();
+        let bytes = self.enc.take(); // this is already a re-encoded packet..
         self.write.write_all(&bytes).await?;
 
-        self.buf.clear();
-        self.raw.clear();
-
-        write!(&mut self.buf, "{pkt:#?}")?;
-        write!(&mut self.raw, "{pkt:?}")?;
-
-        let packet_name = self
-            .buf
-            .split_once(|ch: char| !ch.is_ascii_alphabetic())
-            .map(|(fst, _)| fst)
-            .unwrap_or(&self.buf);
+        let direction = self.direction.clone();
+        let context = self.context.clone();
 
         let time = match OffsetDateTime::now_local() {
             Ok(time) => time,
@@ -65,18 +52,16 @@ impl State {
             }
         };
 
-        self.context.add(Packet {
-            id: 0, // updated when added to context
-            direction: self.direction.clone(),
+        // tokio::spawn(async move {
+        // let pb = PacketBuilder::new(direction, bytes.to_vec()); // stick the bytes in the packetbuilder
+        // let packet = pb.to_packet::<P>().unwrap(); // have the packetbuilder poop out a Packet {}
+        context.add(Packet {
+            id: 0,
+            direction,
             selected: false,
-            packet_type: bytes[0],
-            packet_name: packet_name.to_owned(),
-            packet: self.buf.clone(),
-            packet_raw: self.raw.clone(),
+            packet: bytes.to_vec(),
             created_at: time,
         });
-
-        // println!("{}", self.buf);
 
         Ok(pkt)
     }

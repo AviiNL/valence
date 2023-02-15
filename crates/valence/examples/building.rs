@@ -11,7 +11,7 @@ pub fn main() {
     tracing_subscriber::fmt().init();
 
     App::new()
-        .add_plugin(ServerPlugin::new(()))
+        .add_plugin(ServerPlugin::new(()).with_connection_mode(ConnectionMode::Offline))
         .add_system_to_stage(EventLoop, default_event_handler)
         .add_system_to_stage(EventLoop, toggle_gamemode_on_sneak)
         .add_system_to_stage(EventLoop, digging_creative_mode)

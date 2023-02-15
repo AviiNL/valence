@@ -89,8 +89,6 @@ async fn handle_connection(
         dec: PacketDecoder::new(),
         read: server_read,
         write: client_write,
-        buf: String::new(),
-        raw: String::new(),
         direction: PacketDirection::ServerToClient,
         context: context.clone(),
     };
@@ -101,8 +99,6 @@ async fn handle_connection(
         dec: PacketDecoder::new(),
         read: client_read,
         write: server_write,
-        buf: String::new(),
-        raw: String::new(),
         direction: PacketDirection::ClientToServer,
         context: context.clone(),
     };
@@ -297,7 +293,7 @@ impl<'a> eframe::App for App<'a> {
                         let f: Vec<&mut Packet> = f
                             .iter_mut()
                             // todo: regex? or even a wireshark-style filter language processor?
-                            .filter(|p| p.packet_name.to_lowercase().contains(&self.filter.to_lowercase()))
+                            .filter(|p| p.get_packet_name::<C2sPlayPacket>().to_lowercase().contains(&self.filter.to_lowercase()))
                             .collect();
 
                         *self.context.packet_count.write().expect("Poisoned RwLock") = f.len();
@@ -338,7 +334,7 @@ impl<'a> eframe::App for App<'a> {
                 let packets = self.context.packets.read().expect("Poisoned RwLock");
                 if idx < packets.len() {
                     let packet = &packets[idx];
-                    let text = packet.packet.clone();
+                    let text = "".to_string(); // TODO: RESTORE
 
                     egui::ScrollArea::vertical().show(ui, |ui| {
                         code_view_ui(ui, &text);
