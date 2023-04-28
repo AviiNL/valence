@@ -35,10 +35,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
 
       - name: cargo fmt
-        run: cargo fmt --all -- --check
+        run: cargo +nightly fmt --all -- --check
 
       - name: Clippy
-        run: cargo clippy --workspace ${{ matrix.flags }}--no-deps --all-features --all-targets -- -D warnings
+        run: cargo +nightly clippy --workspace ${{ matrix.flags }}--no-deps --all-features --all-targets -- -D warnings
 
   valence-tests:
     strategy:
