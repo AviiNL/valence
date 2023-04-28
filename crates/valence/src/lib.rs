@@ -23,6 +23,9 @@
 
 use bevy_app::{PluginGroup, PluginGroupBuilder};
 
+#[cfg(test)]
+mod tests;
+
 #[cfg(feature = "anvil")]
 pub use valence_anvil as anvil;
 pub use valence_core::*;
@@ -145,6 +148,3 @@ impl PluginGroup for DefaultPlugins {
         group
     }
 }
-
-#[cfg(test)]
-mod tests;
