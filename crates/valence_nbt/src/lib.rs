@@ -33,8 +33,6 @@ mod to_binary_writer;
 pub mod value;
 
 mod tag;
-#[cfg(test)]
-mod tests;
 
 type Result<T> = std::result::Result<T, Error>;
 
@@ -82,3 +80,6 @@ macro_rules! compound {
         ])
     }
 }
+
+#[cfg(test)]
+mod tests;
