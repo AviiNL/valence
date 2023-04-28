@@ -18,7 +18,8 @@
     unused_lifetimes,
     unused_import_braces,
     unreachable_pub,
-    clippy::dbg_macro
+    clippy::dbg_macro,
+    clippy::items_after_test_module // https://github.com/rust-lang/rust-clippy/issues/10713
 )]
 
 use bevy_app::{PluginGroup, PluginGroupBuilder};
